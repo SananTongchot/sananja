@@ -10,7 +10,7 @@ router.put("/:id", (req, res) => {
   let cat: CatModel = req.body;
   let id = +req.params.id; // ใช้ req.params เพื่อดึงค่า id จาก URL parameter
   let newscore = +cat.score; // ใช้ req.body เพื่อดึงค่า newscore จาก request body
-
+  console.log("newScore"+newscore);
   let sql = "UPDATE `cat` SET `score`=? WHERE `id`=?";
   sql = mysql.format(sql, [newscore, id]);
   
@@ -23,7 +23,7 @@ router.put("/:id", (req, res) => {
 router.get("/:id", (req, res) => {
   const catID = req.params.id;
   const sql = "SELECT score FROM `cat` WHERE `id` = ?";
-  
+   
   conn.query(sql, [catID], (err, results) => {
     if (err) {
       console.error("Error executing query:", err);
