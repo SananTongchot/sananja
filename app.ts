@@ -3,9 +3,10 @@ import bodyParser from "body-parser";
 import { router as cat } from "./api/cat";
 import { router as remove } from "./api/remove";
 import {router as add} from "./api/add";
-import cors from "cors";
+import {router as upscore} from "./api/upscore";
 import {router as random} from "./api/random";
 export const app = express();
+import cors from "cors";
 
 // ให้ cors() ทำการกำหนดค่าและเรียก middleware
 app.use(cors({
@@ -19,3 +20,4 @@ app.use("/random", random);
 app.use("/register", cat);
 app.use("/remove", remove);
 app.use("/addcat", add);
+app.use("/upscore", upscore);

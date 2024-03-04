@@ -8,7 +8,7 @@ export interface UserModel {
 }
 
 export interface CatModel {
-    cid:   number;
+    id:   number;
     name:  string;
     image: string;
     score: number;
