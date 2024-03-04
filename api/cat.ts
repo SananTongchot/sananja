@@ -1,25 +1,58 @@
 import express from "express";
 import mysql from "mysql";
+import axios from "axios";
 export const router = express.Router();
 import { conn } from "../dbconnect";
+import { UserModel } from "../model";
+import bodyParser = require("body-parser");
 
 //show all
+// router.get("/", (req, res) => {
+//   let user: UserModel = req.body;
+//   const sql = "SELECT * FROM `user` WHERE `name` = ? AND `password` = ?";
+//   conn.query(sql, [user.name, user.password], (err, results) => {
+//     if (err) {
+//       console.error("Error executing query:", err);
+//       // Send user-friendly error message to client
+//       res.status(500).send("Error retrieving user data.");
+//     } else {
+//       console.log("Successfully executed query:", results);
+//       res.send(results); // Send retrieved user data
+//     }
+//   });
+// });
 router.get("/", (req, res) => {
-  const sql = "SELECT * FROM cat";
-  conn.query(sql, (err, results) => {
+  const user = req.query;
+  const sql = "SELECT * FROM `user` WHERE `name` = ? AND `password` = ?";
+  conn.query(sql, [user.name, user.password], (err, results) => {
     if (err) {
       console.error("Error executing query:", err);
-      // Send user-friendly error message to client
       res.status(500).send("Error retrieving user data.");
     } else {
       console.log("Successfully executed query:", results);
-      res.send(results); // Send retrieved user data
+      res.send(results);
     }
   });
 });
+///
 
 
 // register
 router.post("/register", (req, res) => {
-  res.send("Get in trip.ts");
+  let user: UserModel = req.body;
+  let sql =
+    "INSERT INTO `user`(`name`, `avatar`, `email`, `password`, `type`) VALUES (?,?,?,?,?)";
+  sql = mysql.format(sql, [
+    user.name,
+    user.avatar,
+    user.email,
+    user.password,
+    user.type,
+  ]);
+  conn.query(sql, (err, result) => {
+    if (err) throw err;
+    res
+      .status(201)
+      .json({ affected_row: result.affectedRows, last_idx: result.insertId });
+  });
 });
