@@ -56,3 +56,20 @@ router.post("/register", (req, res) => {
       .json({ affected_row: result.affectedRows, last_idx: result.insertId });
   });
 });
+
+// router.get("/random", (req, res) => {
+//   // 1. Connect to the database (assuming a connection pool is established)
+//   conn.getConnection((err, connection) => {
+//     if (err) {
+//       // Handle connection error gracefully
+//       console.error("Error connecting to database:", err);
+//       res.status(500).json({ message: "Internal Server Error" });
+//       return; // Exit the function if connection fails
+//     }
+//     const sql = `SELECT * FROM cat ORDER BY RAND() LIMIT 2`; // Use template literals for clarity
+//     connection.query(sql, (error, result) => {
+//       connection.release(); // Release the connection back to the pool
+
+//     });
+//   });
+// });
