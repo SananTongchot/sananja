@@ -13,3 +13,4 @@ export interface CatModel {
     image: string;
     score: number;
 }
+

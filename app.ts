@@ -5,6 +5,7 @@ import { router as remove } from "./api/remove";
 import {router as add} from "./api/add";
 import {router as upscore} from "./api/upscore";
 import {router as random} from "./api/random";
+import {router as uplodeimg} from "./api/uplodeimg"
 export const app = express();
 import cors from "cors";
 
@@ -21,3 +22,4 @@ app.use("/register", cat);
 app.use("/remove", remove);
 app.use("/addcat", add);
 app.use("/upscore", upscore);
+app.use("/uploadimg",uplodeimg)
