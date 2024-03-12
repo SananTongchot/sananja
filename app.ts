@@ -22,4 +22,4 @@ app.use("/register", cat);
 app.use("/remove", remove);
 app.use("/addcat", add);
 app.use("/upscore", upscore);
-app.use("/uploadimg",uplodeimg)
+app.use("/upload",uplodeimg)
