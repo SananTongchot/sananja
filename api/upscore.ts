@@ -3,7 +3,7 @@ import mysql from "mysql";
 import axios from "axios";
 export const router = express.Router();
 import { conn } from "../dbconnect";
-import { CatModel, UserModel } from "../model";
+import { CatModel, UserModel, VoteModel } from "../model";
 import bodyParser = require("body-parser");
 
 router.put("/:id", (req, res) => {
@@ -32,5 +32,40 @@ router.get("/:id", (req, res) => {
       console.log("Successfully executed query:", results);
       res.send(results);
     }
+  });
+});
+
+
+//เอาข้อมูลลงใน vote
+// router.post("/", (req, res) => {
+//   let vote: VoteModel = req.body;
+//   let id = vote.id 
+
+//   let newscore = +cat.score;           
+//   let sql = "UPDATE `cat` SET `score`=? WHERE `id`=?";
+//   sql = mysql.format(sql, [newscore]);
+  
+//   conn.query(sql, (err, result) => {
+//     if (err) throw err;
+//     res.status(201).json({ affected_row: result.affectedRows });
+//   });
+// });
+
+router.post("/", (req, res) => {
+  let vote: VoteModel = req.body;
+  let sql =
+    "INSERT INTO `vote`(`cid`, `score_old`, `score_new`, `date`) VALUES (?,?,?,?)";
+  sql = mysql.format(sql, [
+    vote.cid,
+    vote.score_old,
+    vote.score_new,
+    vote.date,
+    
+  ]);
+  conn.query(sql, (err, result) => {
+    if (err) throw err;
+    res
+      .status(201)
+      .json({ affected_row: result.affectedRows, last_idx: result.insertId });
   });
 });
