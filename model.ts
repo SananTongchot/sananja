@@ -14,3 +14,10 @@ export interface CatModel {
     score: number;
 }
 
+export interface VoteModel {
+    id:   number;
+    cid:  number;
+    score_old: number;
+    score_new: number;
+    date: Date;
+}
