@@ -57,3 +57,16 @@ router.post("/register", (req, res) => {
   });
 });
 
+router.get("/img", (req, res) => {
+  const user = req.query;
+  const sql = "SELECT * FROM `cat` WHERE `cid` = ?";
+  conn.query(sql, [user.id], (err, results) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Error retrieving user data.");
+    } else {
+      console.log("Successfully executed query:", results);
+      res.send(results);
+    }
+  });
+});
