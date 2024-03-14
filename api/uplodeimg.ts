@@ -38,33 +38,71 @@ class FileMiddleware{
 
 const fileUpload = new FileMiddleware();
 router.post("/img", fileUpload.diskLoader.single("file"), async (req, res) => {
-    try {
-      const filename = Math.round(Math.random() * 10000) + ".png";
-      const storageRef = ref(storage, "/images/" + filename);
-      const metaData = { contentType: req.file!.mimetype };
-      const snapshot = await uploadBytesResumable(storageRef, req.file!.buffer, metaData);
-      const url = await getDownloadURL(snapshot.ref);
-  
-      // Insert the filename into the database
-      const sql = "INSERT INTO `cat` (`image`) VALUES (?)";
-      const insertSql = mysql.format(sql, [url]);
-  
-      conn.query(insertSql, (err, result) => {
-        if (err) {
-          console.error('Error inserting filename into the database:', err);
-          res.status(500).json({ error: 'Internal Server Error' });
-        } else {
-          res.status(200).json({ filename: url, dbResult: result });
-        }
+  try {
+      // เช็คว่าผู้ใช้มีรูปภาพอยู่กี่รูปแล้ว
+      const countSql = "SELECT COUNT(*) AS num_images FROM `cat` WHERE `cid` = ?";
+      const userId = req.body.userId;
+      const countQuery = mysql.format(countSql, [userId]);
+
+      conn.query(countQuery, async (countErr, countResult) => {
+          if (countErr) {
+              console.error('Error counting existing images:', countErr);
+              return res.status(500).json({ error: 'Internal Server Error' });
+          }
+
+          const numImages = countResult[0].num_images;
+
+          // ตรวจสอบว่าผู้ใช้มีรูปภาพไม่เกิน 5 รูปหรือไม่
+          if (numImages >= 5) {
+              return res.status(400).json({ error: 'Exceeded maximum number of images allowed' });
+          }
+
+          // ถ้าจำนวนรูปภาพไม่เกิน 5 รูป ให้ดำเนินการเพิ่มรูปภาพ
+          const filename = Math.round(Math.random() * 10000) + ".png";
+          const storageRef = ref(storage, "/images/" + filename);
+          const metaData = { contentType: req.file!.mimetype, userId: userId };
+          const snapshot = await uploadBytesResumable(storageRef, req.file!.buffer, metaData);
+          const url = await getDownloadURL(snapshot.ref);
+
+          // เพิ่มข้อมูลรูปภาพลงในฐานข้อมูล
+          const insertSql = "INSERT INTO `cat` (`image`, `cid`) VALUES (?, ?)";
+          const insertQuery = mysql.format(insertSql, [url, userId]);
+
+          conn.query(insertQuery, (insertErr, insertResult) => {
+              if (insertErr) {
+                  console.error('Error inserting image data into the database:', insertErr);
+                  return res.status(500).json({ error: 'Internal Server Error' });
+              }
+              res.status(200).json({ filename: url, dbResult: insertResult });
+          });
       });
-    } catch (error) {
+  } catch (error) {
       console.error('Error uploading image:', error);
       res.status(500).json({ error: 'Internal Server Error' });
-    }
+  }
+});
+
+
+router.put("/img2", fileUpload.diskLoader.single("file"), async (req, res) => {
+  const id = req.body.id;
+  const filename = Math.round(Math.random() * 10000) + ".png";
+  const storageRef = ref(storage, "/images/" + filename);
+  const metaData = { contentType: req.file!.mimetype, id: id };
+  const snapshot = await uploadBytesResumable(storageRef, req.file!.buffer, metaData);
+  const url = await getDownloadURL(snapshot.ref);
+
+  // เพิ่มข้อมูลรูปภาพลงในฐานข้อมูล
+  const updateSql = "UPDATE `cat` SET `image` = ? WHERE `id` = ?";
+  const updateQuery = mysql.format(updateSql, [url, id]);
+
+  conn.query(updateQuery, (updateErr, updateResult) => {
+      if (updateErr) {
+          console.error('Error updating image data in the database:', updateErr);
+          return res.status(500).json({ error: 'Internal Server Error' });
+      }
+      res.status(200).json({ filename: url, dbResult: updateResult });
   });
-  
-
-
+});
 
   
   
