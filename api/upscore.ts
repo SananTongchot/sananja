@@ -54,7 +54,7 @@ router.get("/:id", (req, res) => {
 router.post("/", (req, res) => {
   let vote: VoteModel = req.body;
   let sql =
-    "INSERT INTO `vote`(`cid`, `score_old`, `score_new`, `date`) VALUES (?,?,?,?)";
+    "INSERT INTO `vote`(`cid`, `score_old`, `score_new`, `date`) VALUES (?,?,?,now())";
   sql = mysql.format(sql, [
     vote.cid,
     vote.score_old,
