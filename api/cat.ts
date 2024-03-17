@@ -70,3 +70,54 @@ router.get("/img", (req, res) => {
     }
   });
 });
+
+router.get("/rankold", (req, res) => {
+  const sql = `
+  SELECT cid, MAX(score_new) AS max_score
+  FROM vote
+  WHERE DATE(date) = CURDATE() - INTERVAL 1 DAY
+  GROUP BY cid
+  ORDER BY max_score DESC
+  LIMIT 10;
+  
+
+  
+
+
+  
+  `;
+
+  conn.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Error retrieving vote data.");
+    } else if (results.length < 10) {
+      console.warn("Less than 10 results found. Consider increasing data or adding logic to handle this case.");
+      res.send(results);
+    } else {
+      console.log("Successfully executed query:", results);
+      res.send(results);
+    }
+  });
+});
+
+router.get("/ranktoday", (req, res) => {
+  const sql = `
+  SELECT * from cat order by score desc limit 10;
+  `;
+
+  conn.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Error retrieving vote data.");
+    } else if (results.length < 10) {
+      console.warn("Less than 10 results found. Consider increasing data or adding logic to handle this case.");
+      res.send(results);
+    } else {
+      console.log("Successfully executed query:", results);
+      res.send(results);
+    }
+  });
+});
+
+
