@@ -26,6 +26,7 @@ router.get("/:id", (req, res) => {
    
   conn.query(sql, [catID], (err, results) => {
     if (err) {
+      
       console.error("Error executing query:", err);
       res.status(500).send("Error retrieving user data.");
     } else {
