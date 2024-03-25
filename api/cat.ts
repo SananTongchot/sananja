@@ -120,4 +120,21 @@ router.get("/ranktoday", (req, res) => {
   });
 });
 
-
+router.put("/edituse/:id", (req, res) => {
+  let id = +req.params.id;
+  let user: UserModel = req.body;
+  let sql =
+    "UPDATE `user` SET `name`=?, `email`=?, `password`=? WHERE `id`=?";
+  sql = mysql.format(sql, [
+    user.name,
+    user.email,
+    user.password,
+    id
+  ]);
+  conn.query(sql, (err, result) => {
+    if (err) throw err;
+    res
+      .status(200) 
+      .json({ affected_row: result.affectedRows });
+  });
+});
