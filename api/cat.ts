@@ -6,21 +6,7 @@ import { conn } from "../dbconnect";
 import { UserModel } from "../model";
 import bodyParser = require("body-parser");
 
-//show all
-// router.get("/", (req, res) => {
-//   let user: UserModel = req.body;
-//   const sql = "SELECT * FROM `user` WHERE `name` = ? AND `password` = ?";
-//   conn.query(sql, [user.name, user.password], (err, results) => {
-//     if (err) {
-//       console.error("Error executing query:", err);
-//       // Send user-friendly error message to client
-//       res.status(500).send("Error retrieving user data.");
-//     } else {
-//       console.log("Successfully executed query:", results);
-//       res.send(results); // Send retrieved user data
-//     }
-//   });
-// });
+
 router.get("/", (req, res) => {
   const user = req.query;
   const sql = "SELECT * FROM `user` WHERE `name` = ? AND `password` = ?";
@@ -73,18 +59,21 @@ router.get("/img", (req, res) => {
 
 router.get("/rankold", (req, res) => {
   const sql = `
-  SELECT cid, MAX(score_new) AS max_score
-  FROM vote
-  WHERE DATE(date) = CURDATE() - INTERVAL 1 DAY
-  GROUP BY cid
-  ORDER BY max_score DESC
-  LIMIT 10;
-  
-
-  
-
-
-  
+  SELECT c.id, c.name, c.image, c.score,
+  ROW_NUMBER() OVER (ORDER BY c.score DESC) AS current_rank, 
+  ROW_NUMBER() OVER (ORDER BY v.total_score_change DESC) AS ranking
+  FROM (
+      SELECT id, name, score, image
+      FROM cat
+      ORDER BY score DESC
+      LIMIT 10
+  ) c
+  JOIN (
+      SELECT cid, MAX(score_new - score_old) AS total_score_change
+      FROM vote
+      GROUP BY cid
+  ) v ON c.id = v.cid
+  ORDER BY current_rank;
   `;
 
   conn.query(sql, (err, results) => {
@@ -101,32 +90,32 @@ router.get("/rankold", (req, res) => {
   });
 });
 
-router.get("/ranktoday", (req, res) => {
-  const sql = `
-  SELECT * from cat order by score desc limit 10;
-  `;
+// router.get("/ranktoday", (req, res) => {
+//   const sql = `
+//   SELECT * from cat order by score desc limit 10;
+//   `;
 
-  conn.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error executing query:", err);
-      res.status(500).send("Error retrieving vote data.");
-    } else if (results.length < 10) {
-      console.warn("Less than 10 results found. Consider increasing data or adding logic to handle this case.");
-      res.send(results);
-    } else {
-      console.log("Successfully executed query:", results);
-      res.send(results);
-    }
-  });
-});
+//   conn.query(sql, (err, results) => {
+//     if (err) {
+//       console.error("Error executing query:", err);
+//       res.status(500).send("Error retrieving vote data.");
+//     } else if (results.length < 10) {
+//       console.warn("Less than 10 results found. Consider increasing data or adding logic to handle this case.");
+//       res.send(results);
+//     } else {
+//       console.log("Successfully executed query:", results);
+//       res.send(results);
+//     }
+//   });
+// });
 
-router.get("/:id", (req, res) => {
-  let id = +req.params.id;
-  conn.query("select * from user where id = ?" , [id], (err, result, fields) => {
-  if (err) throw err;
-    res.json(result);
-  });
-});
+// router.get("/:id", (req, res) => {
+//   let id = +req.params.id;
+//   conn.query("select * from user where id = ?" , [id], (err, result, fields) => {
+//   if (err) throw err;
+//     res.json(result);
+//   });
+// });
 
 router.put("/edituse/:id", (req, res) => {
   let id = +req.params.id;
