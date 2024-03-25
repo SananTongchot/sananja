@@ -104,6 +104,26 @@ router.put("/img2", fileUpload.diskLoader.single("file"), async (req, res) => {
   });
 });
 
+router.put("/imgUser", fileUpload.diskLoader.single("file"), async (req, res) => {
+    const id = req.body.id;
+    const filename = Math.round(Math.random() * 10000) + ".png";
+    const storageRef = ref(storage, "/images/" + filename);
+    const metaData = { contentType: req.file!.mimetype, id: id };
+    const snapshot = await uploadBytesResumable(storageRef, req.file!.buffer, metaData);
+    const url = await getDownloadURL(snapshot.ref);
+  
+    // เพิ่มข้อมูลรูปภาพลงในฐานข้อมูล
+    const updateSql = "UPDATE `user` SET `avatar` = ? WHERE `id` = ?";
+    const updateQuery = mysql.format(updateSql, [url, id]);
+  
+    conn.query(updateQuery, (updateErr, updateResult) => {
+        if (updateErr) {
+            console.error('Error updating image data in the database:', updateErr);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        res.status(200).json({ filename: url, dbResult: updateResult });
+    });
+  });
   
   
 
