@@ -22,7 +22,7 @@ router.put("/:id", (req, res) => {
 
 router.get("/:id", (req, res) => {
   const catID = req.params.id;
-  const sql = "SELECT score FROM `cat` WHERE `id` = ?";
+  const sql = "SELECT score,image,id FROM `cat` WHERE `id` = ?";
    
   conn.query(sql, [catID], (err, results) => {
     if (err) {
@@ -36,21 +36,6 @@ router.get("/:id", (req, res) => {
   });
 });
 
-router.get("/img/:id", (req, res) => {
-  const catID = req.params.id;
-  const sql = "SELECT image FROM `cat` WHERE `id` = ?";
-   
-  conn.query(sql, [catID], (err, results) => {
-    if (err) {
-      
-      console.error("Error executing query:", err);
-      res.status(500).send("Error retrieving user data.");
-    } else {
-      console.log("Successfully executed query:", results);
-      res.send(results);
-    }
-  });
-});
 
 
 //เอาข้อมูลลงใน vote
