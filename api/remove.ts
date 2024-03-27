@@ -7,7 +7,7 @@ import bodyParser = require("body-parser");
 
 router.delete("/:id", (req, res) => {
   let id = +req.params.id;
-  conn.query("DELETE FROM user WHERE id = ?", [id], (err, result) => {
+  conn.query("DELETE FROM cat WHERE id = ?", [id], (err, result) => {
       if (err) throw err;
       res.status(200).json({ affectedRows: result.affectedRows });
   });
