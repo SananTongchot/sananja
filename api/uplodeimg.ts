@@ -85,6 +85,7 @@ router.post("/img", fileUpload.diskLoader.single("file"), async (req, res) => {
 
 router.put("/img2", fileUpload.diskLoader.single("file"), async (req, res) => {
   const id = req.body.id;
+  const name = req.body.name;
   const filename = Math.round(Math.random() * 10000) + ".png";
   const storageRef = ref(storage, "/images/" + filename);
   const metaData = { contentType: req.file!.mimetype, id: id };
@@ -92,8 +93,8 @@ router.put("/img2", fileUpload.diskLoader.single("file"), async (req, res) => {
   const url = await getDownloadURL(snapshot.ref);
 
   // เพิ่มข้อมูลรูปภาพลงในฐานข้อมูล
-  const updateSql = "UPDATE `cat` SET `image` = ? WHERE `id` = ?";
-  const updateQuery = mysql.format(updateSql, [url, id]);
+  const updateSql = "UPDATE `cat` SET `image` = ?, `name` = ? WHERE `id` = ?";
+  const updateQuery = mysql.format(updateSql, [url, name,id]);
 
   conn.query(updateQuery, (updateErr, updateResult) => {
       if (updateErr) {
@@ -104,18 +105,22 @@ router.put("/img2", fileUpload.diskLoader.single("file"), async (req, res) => {
   });
 });
 
+
 router.put("/imgUser", fileUpload.diskLoader.single("file"), async (req, res) => {
     const id = req.body.id;
+    const name = req.body.name;
+    const email = req.body.email;
+    const password = req.body.password;
     const filename = Math.round(Math.random() * 10000) + ".png";
     const storageRef = ref(storage, "/images/" + filename);
     const metaData = { contentType: req.file!.mimetype, id: id };
     const snapshot = await uploadBytesResumable(storageRef, req.file!.buffer, metaData);
     const url = await getDownloadURL(snapshot.ref);
-  
+
     // เพิ่มข้อมูลรูปภาพลงในฐานข้อมูล
-    const updateSql = "UPDATE `user` SET `avatar` = ? WHERE `id` = ?";
-    const updateQuery = mysql.format(updateSql, [url, id]);
-  
+    const updateSql = "UPDATE `user` SET `avatar` = ?, `name` = ?, `email` = ?, `password` = ? WHERE `id` = ?";
+    const updateQuery = mysql.format(updateSql, [url, name, email,password, id]); // ลบ `,` ที่เกิดความผิดพลาด
+
     conn.query(updateQuery, (updateErr, updateResult) => {
         if (updateErr) {
             console.error('Error updating image data in the database:', updateErr);
@@ -123,9 +128,28 @@ router.put("/imgUser", fileUpload.diskLoader.single("file"), async (req, res) =>
         }
         res.status(200).json({ filename: url, dbResult: updateResult });
     });
-  });
-  
-  
+});
+
+router.put("/imgUserData", async (req, res) => {
+    const id = req.body.id;
+    const name = req.body.name;
+    const email = req.body.email;
+    const avatar = req.body.avatar;
+    const password = req.body.password;
+    // เพิ่มข้อมูลรูปภาพลงในฐานข้อมูล
+    const updateSql = "UPDATE `user` SET `avatar` = ?, `name` = ?, `email` = ?, `password` = ? WHERE `id` = ?";
+    const updateQuery = mysql.format(updateSql, [avatar, name, email,password, id]); // ลบ `,` ที่เกิดความผิดพลาด
+
+    conn.query(updateQuery, (updateErr, updateResult) => {
+        if (updateErr) {
+            console.error('Error updating image data in the database:', updateErr);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        res.status(200).json({ dbResult: updateResult });
+    });
+});
+
+
 
 
 

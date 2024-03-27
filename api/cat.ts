@@ -57,6 +57,21 @@ router.get("/img", (req, res) => {
   });
 });
 
+router.get("/1cat/:id", (req, res) => {
+  const id = req.params.id;
+  const sql = "SELECT * FROM `cat` WHERE `id` = ?";
+  conn.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Error retrieving user data.");
+    } else {
+      console.log("Successfully executed query:", results);
+      res.send(results);
+    }
+  });
+});
+
+
 router.get("/rankold", (req, res) => {
   const sql = `
   SELECT c.id, c.name, c.image, c.score,
