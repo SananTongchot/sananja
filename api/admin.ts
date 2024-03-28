@@ -6,7 +6,7 @@ import { conn } from "../dbconnect";
 import { UserModel } from "../model";
 
 router.get("/adminuser", (req, res) => {
-  const sql = "SELECT * FROM `user`";
+  const sql = "SELECT * FROM `user` where `type` = 'use' ";
   conn.query(sql, (err, results) => {
     if (err) {
       console.error("Error executing query:", err);
