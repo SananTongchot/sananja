@@ -130,24 +130,27 @@ router.put("/imgUser", fileUpload.diskLoader.single("file"), async (req, res) =>
     });
 });
 
-router.put("/imgUserData", async (req, res) => {
+router.put("/img/Data", async (req, res) => {
     const id = req.body.id;
     const name = req.body.name;
     const email = req.body.email;
     const avatar = req.body.avatar;
     const password = req.body.password;
-    // เพิ่มข้อมูลรูปภาพลงในฐานข้อมูล
+
     const updateSql = "UPDATE `user` SET `avatar` = ?, `name` = ?, `email` = ?, `password` = ? WHERE `id` = ?";
-    const updateQuery = mysql.format(updateSql, [avatar, name, email,password, id]); // ลบ `,` ที่เกิดความผิดพลาด
+    const updateQuery = mysql.format(updateSql, [avatar, name, email, password, id]);
 
     conn.query(updateQuery, (updateErr, updateResult) => {
         if (updateErr) {
             console.error('Error updating image data in the database:', updateErr);
             return res.status(500).json({ error: 'Internal Server Error' });
         }
-        res.status(200).json({ dbResult: updateResult });
+        res.status(200).json({ dbResult: updateResult }); // ส่งข้อมูลกลับไปยังแอป Angular
     });
 });
+
+
+
 
 
 
